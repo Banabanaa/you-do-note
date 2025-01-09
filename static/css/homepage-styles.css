@@ -1,0 +1,384 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 100vh; 
+    background: 
+        linear-gradient(135deg, rgba(26, 26, 46, 0.7), rgba(22, 33, 62, 0.7), rgba(15, 52, 96, 0.7)),
+        url("/static/images/you-do-note.png");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; 
+    background-repeat: no-repeat; 
+    color: #fff;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Shapes */
+.shape {
+    position: absolute;
+    z-index: 1;
+    opacity: 0.2;
+}
+
+.triangle {
+    width: 0;
+    height: 0;
+    border-left: 80px solid transparent;
+    border-right: 80px solid transparent;
+    border-bottom: 140px solid #FFD700;
+    top: 15%;
+    left: 5%;
+}
+
+.circle {
+    width: 120px;
+    height: 120px;
+    background: #FF6347;
+    border-radius: 50%;
+    top: 75%;
+    left: 85%;
+}
+
+.square {
+    width: 100px;
+    height: 100px;
+    background: #32CD32;
+    top: 30%;
+    left: 60%;
+    transform: rotate(15deg);
+}
+
+.star {
+    width: 0;
+    height: 0;
+    border-left: 30px solid transparent;
+    border-right: 30px solid transparent;
+    border-bottom: 60px solid #FF4500;
+    position: absolute;
+    top: 50%;
+    left: 20%;
+    transform: rotate(35deg);
+}
+
+.notepad {
+    width: 70px;
+    height: 90px;
+    background: #ADD8E6;
+    position: absolute;
+    top: 10%;
+    left: 80%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.notepad:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 20px;
+    background: #4682B4;
+    top: 0;
+    left: 0;
+}
+
+.notepad:after {
+    content: '';
+    position: absolute;
+    width: 80%;
+    height: 5px;
+    background: #fff;
+    top: 40px;
+    left: 10%;
+    box-shadow: 0 10px 0 #fff, 0 20px 0 #fff;
+}
+
+/* Logo Section */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    z-index: 2;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    margin-top: 50px;
+    gap: 0px;
+}
+
+.logo-icon {
+    font-size: 50px;
+    color: #FFD700;
+}
+
+.logo-text {
+    font-size: 28px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #FFF;
+}
+
+.logo-text span {
+    color: #FFD700;
+}
+
+/* Welcome Section */
+.welcome-section {
+    margin: 0 auto;
+    text-align: center;
+    max-width: 500px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.welcome-section h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #FFF;
+}
+
+.welcome-section p {
+    font-size: 15px;
+    color: #f3f3f3;
+}
+
+.username {
+    color: #f647ad;
+    font-weight: 600;
+}
+
+
+/* Logout Button */
+.logout-btn-container {
+    margin-top: 15px;
+}
+
+.btn-logout {
+    padding: 5px 18px;
+    font-size: 18px;
+    color: #fff;
+    background-color: #f647ad;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    background-color: #b300a4;
+    transform: translateY(-5px);
+}
+
+/* Notes Section */
+.content-section {
+    width: 100%;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+h3 {
+    text-align: center;
+    color: #FFD700;
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.add-note-form .form-group {
+    margin-bottom: 15px;
+}
+
+.add-note-form label {
+    color: #fff;
+    font-size: 14px;
+}
+
+.add-note-form input, .add-note-form textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: #333;
+    color: #fff;
+}
+
+.add-note-form button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #f647ad;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.add-note-form button:hover {
+    background-color: #b300a4;
+    transform: translateY(-3px);
+}
+
+/* Notes Container */
+.notes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.no-notes {
+    text-align: center;
+    font-size: 16px;
+    color: #fff;
+    margin-top: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Note Item Styling */
+.note-item {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    color: #FFD700;
+}
+
+.note-header h4 {
+    font-size: 20px;
+    margin: 0;
+}
+
+.toggle-content {
+    background: none;
+    border: none;
+    color: #FFD700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.toggle-content i {
+    font-size: 18px;
+}
+
+/* Initially show only the preview (truncated content) */
+.note-preview {
+    display: block; /* Ensure preview is visible */
+}
+
+.note-content {
+    display: none; /* Hide full content by default */
+}
+
+/* Show the full content when the toggle is clicked */
+.note-content.show {
+    display: block;
+}
+
+/* Hide the preview when full content is shown */
+.note-preview.hide {
+    display: none;
+}
+
+.button-container {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+    margin-top: 10px;
+}
+
+.btn-edit, .btn-delete {
+    padding: 5px 15px;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-edit {
+    background-color: #FF8C00;
+    color: #fff;
+}
+
+.btn-edit:hover {
+    background-color: #e77c00;
+}
+
+.btn-delete {
+    background-color: #f647ad;
+    color: #fff;
+}
+
+.btn-delete:hover {
+    background-color: #b300a4;
+}
+
+.fas {
+    margin-right: 5px;
+}
+
+.hidden {
+    display: none;
+}
+
+.note-item:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .content-section {
+        width: 95%;
+    }
+
+    .btn-logout {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .content-section {
+        width: 100%;
+        padding: 15px;
+    }
+
+    .btn-logout {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .note-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}

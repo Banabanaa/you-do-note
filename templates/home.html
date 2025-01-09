@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Home Page</title>
+    <link rel="icon" href="{% static 'images/ydnlogo.png' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'css/homepage-styles.css' %}">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="shape triangle"></div>
+    <div class="shape circle"></div>
+    <div class="shape square"></div>
+    <div class="shape star"></div>
+    <div class="shape notepad"></div>
+
+    <!-- Logo Section -->
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-thumbtack logo-icon"></i>
+            <div class="logo-text">You <span>Do</span> Note</div>
+        </div>
+    </div>
+
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        <h2>Welcome back, <span class="username">{{ request.user.username }}</span>!</h2>
+        <p>We're glad to see you again. Ready to jot down your ideas?</p>
+            <!-- Logout -->
+            <div class="logout-btn-container">
+                <a href="{% url 'logout' %}" class="btn btn-logout">Logout</a>
+            </div>
+    </div>
+
+<!-- Homepage Content -->
+<div class="content-section">
+    <h3>Your Notes</h3>
+
+    <!-- Add Note Form -->
+    <form method="post" action="" class="add-note-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_title">Title:</label>
+            {{ form.title }}
+        </div>
+        <div class="form-group">
+            <label for="id_content">Content:</label>
+            {{ form.content }}
+        </div>
+        <button type="submit" class="btn btn-primary">
+            {% if note_to_edit %} Edit Note {% else %} Add Note {% endif %}
+        </button>
+    </form>
+
+    <!-- Display Notes -->
+    <div class="notes-container">
+        {% for note in notes %}
+        <div class="note-item">
+            <div class="note-header">
+                <h4>{{ note.title }}</h4>
+                <button class="toggle-content">
+                    <i class="fas fa-chevron-down"></i> Show More
+                </button>
+            </div>
+            <div class="note-preview">
+                <p>{{ note.content|truncatechars:40 }}</p> <!-- Show first 40 characters -->
+                <small>Created on: {{ note.timestamp }}</small>
+            </div>
+            <div class="note-content hidden">
+                <p>{{ note.content }}</p> <!-- Full content -->
+                <small>Created on: {{ note.timestamp }}</small>
+            </div>
+            <div class="note-actions">
+                <!-- Button Container for Edit and Delete -->
+                <div class="button-container">
+                    <!-- Edit Button -->
+                    <a href="?edit={{ note.id }}" class="btn btn-edit">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+
+                    <!-- Delete Button -->
+                    <form action="{% url 'delete_note' note.id %}" method="POST" class="delete-form">
+                        {% csrf_token %}
+                        <button type="button" class="btn-delete">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="no-notes">You don't have any notes yet. Start jotting down your ideas!</p>
+        {% endfor %}
+    </div>
+</div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Toggle visibility of note content
+            document.querySelectorAll('.toggle-content').forEach(button => {
+                button.addEventListener('click', function () {
+                    const noteItem = this.closest('.note-item'); // Get the parent note item
+                    const notePreview = noteItem.querySelector('.note-preview'); // The truncated preview
+                    const noteContent = noteItem.querySelector('.note-content'); // The full content
+                    const icon = this.querySelector('i'); // Get the icon for toggle button
+
+                    // Toggle visibility of the preview and full content
+                    notePreview.classList.toggle('hide'); // Hide the preview
+                    noteContent.classList.toggle('show'); // Show the full content
+
+                    // Toggle the icon (show up or down arrow)
+                    icon.classList.toggle('fa-chevron-down');
+                    icon.classList.toggle('fa-chevron-up');
+                });
+            });
+
+            // Delete note confirmation
+            const confirmDelete = (button) => {
+                if (confirm('Are you sure you want to delete this note?')) {
+                    button.closest('form').submit();
+                }
+            };
+
+            // Attach delete function to buttons
+            document.querySelectorAll('.btn-delete').forEach(button => {
+                button.addEventListener('click', function (event) {
+                    event.preventDefault(); // Prevent form submission until confirmed
+                    confirmDelete(this);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

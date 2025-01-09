@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Login Page</title>
+    <link rel="icon" href="{% static 'images/ydnlogo.png' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'css/login-signup-styles.css' %}">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <div class="shape triangle"></div>
+    <div class="shape circle"></div>
+    <div class="shape square"></div>
+    <div class="shape star"></div>
+    <div class="shape notepad"></div>
+
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-thumbtack logo-icon"></i>
+            <div class="logo-text">You <span>Do</span> Note</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h3>Login Here</h3>
+        {% if error %}
+        <p style="color: rgb(237, 81, 81); margin-bottom: 10px;">{{ error }}</p>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username">
+            </div>
+            <div class="form-group">
+                <label for="pass">Password</label>
+                <input type="password" id="pass" name="pass" placeholder="Enter your password">
+            </div>
+            <button type="submit" class="btn">Login</button>
+        </form>
+        <div class="options">
+            <a href="{% url 'signup' %}">Don't have an account?</a>
+        </div>
+
+        <div class="tagline">Your on the go note</div>
+    </div>
+</body>
+</html>
