@@ -36,70 +36,96 @@
             </div>
     </div>
 
-<!-- Homepage Content -->
-<div class="content-section">
-    <h3>Your Notes</h3>
+    <!-- Homepage Content -->
+    <div class="navigation-buttons">
+        <a href="{% url 'home' %}" id="show-notes" class="btn btn-navigate">Show Notes</a>
+        <!-- Button to show the To-Do section -->
+        <a href="{% url 'home_todo' %}" id="show-todo" class="btn btn-navigate">Show To-Do</a>
+    </div>
 
-    <!-- Add Note Form -->
-    <form method="post" action="" class="add-note-form">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="id_title">Title:</label>
-            {{ form.title }}
-        </div>
-        <div class="form-group">
-            <label for="id_content">Content:</label>
-            {{ form.content }}
-        </div>
-        <button type="submit" class="btn btn-primary">
-            {% if note_to_edit %} Edit Note {% else %} Add Note {% endif %}
-        </button>
-    </form>
+    <!-- Notes Section -->
+    <div id="notes-section" class="content-section">
+        <h3>Your Notes</h3>
 
-    <!-- Display Notes -->
-    <div class="notes-container">
-        {% for note in notes %}
-        <div class="note-item">
-            <div class="note-header">
-                <h4>{{ note.title }}</h4>
-                <button class="toggle-content">
-                    <i class="fas fa-chevron-down"></i> Show More
-                </button>
+        <!-- Add Note Form -->
+        <form method="post" action="" class="add-note-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_title">Title:</label>
+                {{ form.title }}
             </div>
-            <div class="note-preview">
-                <p>{{ note.content|truncatechars:40 }}</p> <!-- Show first 40 characters -->
-                <small>Created on: {{ note.timestamp }}</small>
+            <div class="form-group">
+                <label for="id_content">Content:</label>
+                {{ form.content }}
             </div>
-            <div class="note-content hidden">
-                <p>{{ note.content }}</p> <!-- Full content -->
-                <small>Created on: {{ note.timestamp }}</small>
-            </div>
-            <div class="note-actions">
-                <!-- Button Container for Edit and Delete -->
-                <div class="button-container">
-                    <!-- Edit Button -->
-                    <a href="?edit={{ note.id }}" class="btn btn-edit">
-                        <i class="fas fa-edit"></i> Edit
-                    </a>
+            <button type="submit" class="btn btn-primary">
+                {% if note_to_edit %} Edit Note {% else %} Add Note {% endif %}
+            </button>
+        </form>
 
-                    <!-- Delete Button -->
-                    <form action="{% url 'delete_note' note.id %}" method="POST" class="delete-form">
-                        {% csrf_token %}
-                        <button type="button" class="btn-delete">
-                            <i class="fas fa-trash-alt"></i> Delete
+        <!-- Display Notes -->
+        <div class="notes-container">
+            {% for note in notes %}
+            <div class="note-item">
+                <div class="note-header">
+                    <h4>{{ note.title }}</h4>
+                    <button class="toggle-content">
+                        <i class="fas fa-chevron-down"></i> Show More
+                    </button>
+                </div>
+                <div class="note-preview">
+                    <p>{{ note.content|truncatechars:40 }}</p>
+                    <small>Created on: {{ note.timestamp }}</small>
+                </div>
+                <div class="note-content hidden">
+                    <p>{{ note.content|linebreaks }}</p>
+                    <small>Created on: {{ note.timestamp }}</small>
+                </div>
+                <div class="note-actions">
+                    <div class="button-container">
+                        <a href="?edit={{ note.id }}" class="btn btn-edit"><i class="fas fa-edit"></i> Edit</a>
+                        <form action="{% url 'delete_note' note.id %}" method="POST" class="delete-form">
+                            {% csrf_token %}
+                            <button type="button" class="btn-delete"><i class="fas fa-trash-alt"></i> Delete</button>
+                        </form>
+                        <button type="button" class="btn-copy" data-note="{{ note.content }}">
+                            <i class="fas fa-copy"></i> Copy
                         </button>
-                    </form>
+                    </div>
                 </div>
             </div>
+            {% empty %}
+            <p class="no-notes">You don't have any notes yet.</p>
+            {% endfor %}
         </div>
-        {% empty %}
-        <p class="no-notes">You don't have any notes yet. Start jotting down your ideas!</p>
-        {% endfor %}
     </div>
-</div>
+
+    <!-- To-Do Section -->
+        <div id="todo-container"></div>
 
 
     <script>
+        // Button controls for notes and To-Do List
+        document.addEventListener('DOMContentLoaded', function () {
+        const showTodoButton = document.getElementById('show-todo');
+        const todoContainer = document.getElementById('todo-container');
+
+        showTodoButton.addEventListener('click', function () {
+            // Clear the current content (if any)
+            todoContainer.innerHTML = '';
+
+            // Fetch the To-Do section content
+            fetch('{% url "home_todo" %}')
+                .then(response => response.text())
+                .then(data => {
+                    todoContainer.innerHTML = data;
+                })
+                .catch(error => {
+                    console.error('Error loading To-Do section:', error);
+                });
+        });
+    });
+
         document.addEventListener('DOMContentLoaded', function () {
             // Toggle visibility of note content
             document.querySelectorAll('.toggle-content').forEach(button => {
@@ -108,24 +134,24 @@
                     const notePreview = noteItem.querySelector('.note-preview'); // The truncated preview
                     const noteContent = noteItem.querySelector('.note-content'); // The full content
                     const icon = this.querySelector('i'); // Get the icon for toggle button
-
+    
                     // Toggle visibility of the preview and full content
                     notePreview.classList.toggle('hide'); // Hide the preview
                     noteContent.classList.toggle('show'); // Show the full content
-
+    
                     // Toggle the icon (show up or down arrow)
                     icon.classList.toggle('fa-chevron-down');
                     icon.classList.toggle('fa-chevron-up');
                 });
             });
-
+    
             // Delete note confirmation
             const confirmDelete = (button) => {
                 if (confirm('Are you sure you want to delete this note?')) {
                     button.closest('form').submit();
                 }
             };
-
+    
             // Attach delete function to buttons
             document.querySelectorAll('.btn-delete').forEach(button => {
                 button.addEventListener('click', function (event) {
@@ -133,8 +159,21 @@
                     confirmDelete(this);
                 });
             });
+    
+            // Copy note content
+            document.querySelectorAll('.btn-copy').forEach(button => {
+                button.addEventListener('click', function () {
+                    const noteContent = this.getAttribute('data-note'); // Get the note content
+                    navigator.clipboard.writeText(noteContent).then(() => {
+                        alert('Note copied to clipboard!');
+                    }).catch(err => {
+                        console.error('Could not copy text: ', err);
+                    });
+                });
+            });
         });
     </script>
+    
 </body>
 
 </html>

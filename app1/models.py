@@ -12,3 +12,14 @@ class Note(models.Model):
     def __str__(self):
         return self.title
 
+class Task(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=[('Active', 'Active'), ('Completed', 'Completed'), ('Deleted', 'Deleted')], default='Active')
+    timestamp = models.DateTimeField(auto_now_add=True)  # Ensure this field exists
+
+    def __str__(self):
+        return self.title
+        
+

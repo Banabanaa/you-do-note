@@ -1,16 +1,15 @@
 from django.shortcuts import render,HttpResponse,redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
-from .models import Note
-from .forms import NoteForm
+from .models import Note, Task
+from .forms import NoteForm, TaskForm
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 # Create your views here.
-@login_required(login_url='login')
-def HomePage(request):
-    return render (request,'home.html')
+
 
 def SignupPage(request):
     if request.method == 'POST':
@@ -53,7 +52,7 @@ def LoginPage(request):
     
     return render(request, 'login.html')
 
-
+@login_required(login_url='login')
 def HomePage(request):
     notes = Note.objects.filter(user=request.user).order_by('-timestamp')  # Fetch notes for logged-in user
     note_id = request.GET.get('edit')  # Check if an 'edit' parameter exists in the URL
@@ -79,6 +78,77 @@ def HomePage(request):
             return redirect('home')  # Redirect after saving
 
     return render(request, 'home.html', {'notes': notes, 'form': form, 'note_to_edit': note_to_edit})
+
+def home_todo(request):
+    # Fetch tasks for each category
+    tasks_active = Task.objects.filter(user=request.user, status='Active')
+    tasks_completed = Task.objects.filter(user=request.user, status='Completed')
+    tasks_deleted = Task.objects.filter(user=request.user, status='Deleted')
+
+    task_form = TaskForm()
+
+    # Handle POST actions
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'add_task':  # Handle task creation
+            title = request.POST.get('title')
+            description = request.POST.get('description')
+            if title:  # Ensure title is not empty
+                Task.objects.create(user=request.user, title=title, description=description, status='Active')
+                messages.success(request, "Task added successfully!")
+            else:
+                messages.error(request, "Task title is required!")
+            return redirect('home_todo')
+        
+        elif action == 'complete_task':  # Mark task as completed
+            task_id = request.POST.get('task_id')
+            task = get_object_or_404(Task, id=task_id, user=request.user)
+            task.status = 'Completed'
+            task.save()
+            messages.success(request, "Task marked as completed!")
+            return redirect('home_todo')
+        
+        elif action == 'delete_task':  # Mark task as deleted
+            task_id = request.POST.get('task_id')
+            task = get_object_or_404(Task, id=task_id, user=request.user)
+            task.status = 'Deleted'
+            task.save()
+            messages.success(request, "Task marked as deleted!")
+            return redirect('home_todo')
+
+        else:
+            messages.error(request, "Invalid action!")
+            return redirect('home_todo')
+
+    return render(request, 'home_todo.html', {
+        'tasks_active': tasks_active,
+        'tasks_completed': tasks_completed,
+        'tasks_deleted': tasks_deleted,
+        'task_form': task_form,
+    })
+
+def update_task_status(request, task_id, status):
+    # Ensure valid status
+    if status not in ['Active', 'Completed', 'Deleted']:
+        messages.error(request, "Invalid status update!")
+        return redirect('home_todo')
+
+    # Fetch task and update status
+    task = get_object_or_404(Task, id=task_id, user=request.user)
+    task.status = status
+    task.save()
+    messages.success(request, f"Task status updated to {status}!")
+    return redirect('home_todo')
+
+def permanent_delete_task(request, task_id):
+    if request.method == 'POST':
+        task = get_object_or_404(Task, id=task_id, user=request.user, status='Deleted')
+        task.delete()
+        messages.success(request, "Task permanently deleted!")
+    else:
+        messages.error(request, "Invalid request method!")
+    return redirect('home_todo')
 
 def delete_note(request, note_id):
     note = get_object_or_404(Note, id=note_id, user=request.user)
