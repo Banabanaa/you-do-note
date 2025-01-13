@@ -52,10 +52,11 @@ def LoginPage(request):
     
     return render(request, 'login.html')
 
+
 @login_required(login_url='login')
 def HomePage(request):
     notes = Note.objects.filter(user=request.user).order_by('-timestamp')  # Fetch notes for logged-in user
-    note_id = request.GET.get('edit')  # Check if an 'edit' parameter exists in the URL
+    note_id = request.GET.get('edit')  
     note_to_edit = None  # Default value for editing
 
     # If an edit id is passed, fetch the note to edit
@@ -64,16 +65,16 @@ def HomePage(request):
 
     form = NoteForm(instance=note_to_edit) if note_to_edit else NoteForm()
 
-    # Handle form submission (create or edit)
+    # Handle form submission
     if request.method == 'POST':
-        if note_to_edit:  # If editing, pass the note instance to the form
+        if note_to_edit:  
             form = NoteForm(request.POST, instance=note_to_edit)
         else:  # If creating a new note
             form = NoteForm(request.POST)
 
         if form.is_valid():
             note = form.save(commit=False)
-            note.user = request.user  # Assign the logged-in user to the note
+            note.user = request.user  # Assign the logged-in user to their notes
             note.save()
             return redirect('home')  # Redirect after saving
 
